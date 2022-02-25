@@ -46,7 +46,7 @@ def receive():
 
         print(f"Nickname of the client is {nickname}")
         broadcatst(f"{nickname} connected to the server!\n".encode('utf-8'))
-        # client.send("Connected to the server\n".encode('utf-8'))
+        #client.send("you are connected to the server\n".encode('utf-8'))
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
