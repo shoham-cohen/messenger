@@ -37,7 +37,7 @@ class Client:
         self.chat_label.config(font=("Ariel", 12))
         self.chat_label.pack(padx=20, pady=5)
 
-        self.text_area = tkinter.scrolledtext.ScrolledText(self.win)
+        self.text_area = tkinter.scrolledtext.ScrolledText(self.win, height=10)
         self.text_area.pack(padx=20, pady=5)
         self.text_area.config(state='disabled')
 
@@ -45,7 +45,7 @@ class Client:
         self.msg_label.config(font=("Ariel", 12))
         self.msg_label.pack(padx=20, pady=5)
 
-        self.input_area = tkinter.Text(self.win, height=3)
+        self.input_area = tkinter.Text(self.win, height=2, width=50)
         self.input_area.pack(padx=20, pady=5)
 
         self.send_button = tkinter.Button(self.win, text="Send", command=self.write)
