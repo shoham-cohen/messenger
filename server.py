@@ -22,13 +22,15 @@ def handle(client):
     while True:
         try:
             message = client.recv(1024)
-            print(f"{nicknames[clients.index(client)]} says {message}")
+            m = message.decode('utf-8')
+            print(f"{nicknames[clients.index(client)]} says {m}")
             broadcatst(message)
         except:
             index = clients.index(client)
             clients.remove(client)
             client.close()
             nickname = nicknames[index]
+            broadcatst(f"{nickname} is now offline".encode('utf-8'))
             nicknames.remove(nickname)
             break
 
@@ -38,7 +40,6 @@ def receive():
         client, address = server.accept()
         print(f"connected with {str(address)}!")
 
-        #client.send("NICK".encode('utf-8'))
         nickname = client.recv(1024).decode('utf-8')
 
         nicknames.append(nickname)
@@ -52,5 +53,5 @@ def receive():
         thread.start()
 
 
-print("Server running...")
+print("Server is running...")
 receive()
