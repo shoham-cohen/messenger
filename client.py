@@ -4,8 +4,9 @@ import tkinter
 import tkinter.scrolledtext
 from tkinter import simpledialog
 
-HOST = '127.0.0.1'
-PORT = 55000
+HOST = input("enter server ip: ")
+PORT = input("enter port: ")
+
 
 class Client:
 
@@ -41,6 +42,13 @@ class Client:
         self.text_area.pack(padx=20, pady=5)
         self.text_area.config(state='disabled')
 
+        # self.ToWho_label = tkinter.Label(self.win, text="Who to send (blank to all): ", bg="lightgray")
+        # self.ToWho_label.config(font=("Ariel", 12))
+        # self.ToWho_label.pack(padx=20, pady=5)
+
+        # self.ToWho = tkinter.Text(self.win, height=2, width=10)
+        # self.ToWho.pack(padx=20, pady=5)
+
         self.msg_label = tkinter.Label(self.win, text="Message: ", bg="lightgray")
         self.msg_label.config(font=("Ariel", 12))
         self.msg_label.pack(padx=20, pady=5)
@@ -51,6 +59,10 @@ class Client:
         self.send_button = tkinter.Button(self.win, text="Send", command=self.write)
         self.send_button.config(font=("Ariel", 12))
         self.send_button.pack(padx=20, pady=5)
+
+        self.disconnect_button = tkinter.Button(self.win, text="Disconnect", command=self.stop)
+        self.disconnect_button.config(font=("Ariel", 12))
+        self.disconnect_button.pack(padx=0, pady=5)
 
         self.gui_done = True
 
@@ -66,6 +78,7 @@ class Client:
     def stop(self):
         self.running = False
         self.win.destroy()
+        self.sock.send(f"{self.nickname} is now offline".encode('utf-8'))
         self.sock.close()
         exit(0)
 
@@ -88,4 +101,5 @@ class Client:
                 self.sock.close()
                 break
 
-client = Client(HOST, PORT)
+
+client = Client(HOST, int(PORT))
