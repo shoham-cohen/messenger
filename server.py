@@ -23,14 +23,20 @@ def handle(client):
         try:
             message = client.recv(1024)
             m = message.decode('utf-8')
-            print(f"{nicknames[clients.index(client)]} says {m}")
-            broadcatst(message)
+            index = clients.index(client)
+            nickname = nicknames[index]
+            if m == f"{nickname}: who is connected?\n":
+                client.send(f"Online: {str(nicknames)}".encode('utf-8'))
+            else:
+                print(f"{m}", end=" ")
+                broadcatst(message)
         except:
             index = clients.index(client)
             clients.remove(client)
             client.close()
             nickname = nicknames[index]
             broadcatst(f"{nickname} is now offline".encode('utf-8'))
+            print(f"{nickname} is now offline")
             nicknames.remove(nickname)
             break
 
