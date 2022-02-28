@@ -78,7 +78,7 @@ class Client:
     def stop(self):
         self.running = False
         self.win.destroy()
-        self.sock.send(f"{self.nickname} is now offline".encode('utf-8'))
+        self.sock.send("".encode('utf-8'))
         self.sock.close()
         exit(0)
 
@@ -86,8 +86,12 @@ class Client:
         while self.running:
             try:
                 message = self.sock.recv(1024).decode('utf-8')
-                if message == 'Nick':
-                    self.sock.send(self.nickname.encode('utf-8'))
+                if "Online: " in message:
+                    if self.gui_done:
+                        self.text_area.config(state='normal')
+                        self.text_area.insert('end', message)
+                        self.text_area.yview('end')
+                        self.text_area.config(state='disabled')
                 else:
                     if self.gui_done:
                         self.text_area.config(state='normal')
