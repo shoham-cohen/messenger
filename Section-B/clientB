@@ -65,18 +65,42 @@ class Client:
         self.send_button.config(font=("Ariel", 12))
         self.send_button.pack(padx=20, pady=5)
 
-        self.disconnect_button = tkinter.Button(self.win, text="Disconnect", command=self.stop)
-        self.disconnect_button.config(font=("Ariel", 12))
-        self.disconnect_button.pack(padx=0, pady=5)
+        def Pop_Button1():
+            filewin = Toplevel(self.win)
+            button = Button(filewin, text="Download File1.txt", command=self.Download("File1.txt"))
+            button.pack()
 
-        # menubar = Menu(self.win)
-        # downloadmenu = Menu(menubar, tearoff=0)
-        # downloadmenu.add_command(label="File1.txt", command=self.Download("File1.txt"))
-        # downloadmenu.add_command(label="File2.txt", command=self.Download("File2.txt"))
-        # downloadmenu.add_command(label="File3.txt", command=self.Download("File3.txt"))
-        # downloadmenu.add_command(label="File4.txt", command=self.Download("File4.txt"))
-        # downloadmenu.add_command(label="File5.txt", command=self.Download("File5.txt"))
-        # self.win.config(menu= downloadmenu)
+        def Pop_Button2():
+            filewin = Toplevel(self.win)
+            button = Button(filewin, text="Download File2.txt", command=self.Download("File2.txt"))
+            button.pack()
+
+        def Pop_Button3():
+            filewin = Toplevel(self.win)
+            button = Button(filewin, text="Download File3.txt", command=self.Download("File3.txt"))
+            button.pack()
+
+        def Pop_Button4():
+            filewin = Toplevel(self.win)
+            button = Button(filewin, text="Download File4.txt", command=self.Download("File4.txt"))
+            button.pack()
+
+        def Pop_Button5():
+            filewin = Toplevel(self.win)
+            button = Button(filewin, text="Download File5.txt", command=self.Download("File5.txt"))
+            button.pack()
+
+        menubar = Menu(self.win)
+        filemenu = Menu(menubar, tearoff=0)
+        filemenu.add_command(label="File1.txt", command=Pop_Button1)
+        filemenu.add_command(label="File2.txt", command=Pop_Button2)
+        filemenu.add_command(label="File3.txt", command=Pop_Button3)
+        filemenu.add_command(label="File4.txt", command=Pop_Button4)
+        filemenu.add_command(label="File5.txt", command=Pop_Button5)
+
+        menubar.add_cascade(label="File", menu=filemenu)
+
+        self.win.config(menu=menubar)
 
         self.gui_done = True
 
@@ -130,9 +154,8 @@ class Client:
     def Show_Files(self):
         self.sock.send("SHOW_FILES".encode('utf-8'))
 
-    def Download(self,FileName):
-        pass
-
+    def Download(self, FileName):
+        self.sock.send(("Downloading "+FileName+"\n").encode('utf-8'))
 
 
 client = Client(HOST, int(PORT))
