@@ -11,9 +11,6 @@ class run_server:
 
 class run_client:
     def __init__(self, SERVER_IP, SERVER_PORT):
-        print(SERVER_IP, SERVER_PORT)
-        print("client Mode: ON")
         s = reciever(SERVER_IP, int(SERVER_PORT))
         s.receive()
-        print("FILE RECEIVED")
         return
