@@ -1,15 +1,14 @@
 import socket
 import threading
 from data_packet import *
-import os
 import time
 
-global window_head, current_ack, expected_ack, buffer_ack, lock, max_pkt_no, packet_list
-window_head = -1
-current_ack = -1
-expected_ack = 0
-buffer_ack = []
-packet_list = []
+global win_start, curr_ack, exp_ack, acks_buff, lock, num_of_pckts, packets
+win_start = -1
+curr_ack = -1
+exp_ack = 0
+acks_buff = []
+packets = []
 
 
 class sender:
@@ -34,9 +33,9 @@ class sender:
         self.ack_socket = ack_socket
 
     def run(self):
-        global window_head, current_ack, expected_ack, buffer_ack, lock, packet_list
+        global win_start, curr_ack, exp_ack, acks_buff, lock, packets
         while True:
-            if current_ack == max_pkt_no and not buffer_ack:
+            if curr_ack == num_of_pckts and not acks_buff:
                 return
 
             data, address = self.ack_socket.recvfrom(1024)
@@ -44,75 +43,62 @@ class sender:
             if check_ack(data):
                 with lock:
                     ack_number = data['number']
-                    if ack_number > expected_ack and ack_number not in buffer_ack:
+                    if ack_number > exp_ack and ack_number not in acks_buff:
                         print("Out of order : ", ack_number)
-                        buffer_ack.append(ack_number)
-                        buffer_ack.sort()
-                        temppkt = json.loads(packet_list[ack_number].decode('utf-8'))
-                        temppkt['status'] = True
-                        packet_list[ack_number] = jsonify(temppkt['data'], temppkt['pkt_type'], temppkt['number'],
-                                                          temppkt['status'], temppkt['checksum'])
+                        acks_buff.append(ack_number)
+                        acks_buff.sort()
+                        temppkt = json.loads(packets[ack_number].decode('utf-8'))
+                        temppkt['sent'] = True
+                        packets[ack_number] = make_json(temppkt['data'], temppkt['type'], temppkt['number'],
+                                                        temppkt['sent'], temppkt['checksum'])
 
-                    elif ack_number == expected_ack:
+                    elif ack_number == exp_ack:
                         print(ack_number)
-                        current_ack += 1
-                        expected_ack += 1
-                        temppkt = json.loads(packet_list[ack_number].decode('utf-8'))
-                        temppkt['status'] = True
-                        packet_list[ack_number] = jsonify(temppkt['data'], temppkt['pkt_type'], temppkt['number'],
-                                                          temppkt['status'], temppkt['checksum'])
-                        #signal.setitimer(signal.ITIMER_REAL, 0.7)
-                        print(buffer_ack)
-                        while buffer_ack and buffer_ack[0] == expected_ack:
-                            current_ack = expected_ack
-                            expected_ack = buffer_ack[0] + 1
-                            buffer_ack.remove(buffer_ack[0])
-                            buffer_ack.sort()
+                        curr_ack += 1
+                        exp_ack += 1
+                        temppkt = json.loads(packets[ack_number].decode('utf-8'))
+                        temppkt['sent'] = True
+                        packets[ack_number] = make_json(temppkt['data'], temppkt['type'], temppkt['number'],
+                                                        temppkt['sent'], temppkt['checksum'])
+                        print(acks_buff)
+                        while acks_buff and acks_buff[0] == exp_ack:
+                            curr_ack = exp_ack
+                            exp_ack = acks_buff[0] + 1
+                            acks_buff.remove(acks_buff[0])
+                            acks_buff.sort()
 
     def send(self, filename):
         fd = open(filename, 'rb')
         content = fd.read()
-        global window_head, current_ack, expected_ack, buffer_ack, lock, max_pkt_no, packet_list
-        packet_list = make_pktlist(content, filename)
-        max_pkt_no = len(packet_list) - 1
+        global win_start, curr_ack, exp_ack, acks_buff, lock, num_of_pckts, packets
+        packets = make_pktlist(content, filename)
+        num_of_pckts = len(packets) - 1
         lock = threading.Lock()
-        buffer_ack = []
+        acks_buff = []
 
         def reset_head():
             while True:
-                global window_head, current_ack, expected_ack, buffer_ack, lock
-                if current_ack < max_pkt_no:
-                    window_head = current_ack
+                global win_start, curr_ack, exp_ack, acks_buff, lock
+                if curr_ack < num_of_pckts:
+                    win_start = curr_ack
                 time.sleep(0.7)
 
-        starttime = time.time()
-        #signal.signal(signal.SIGALRM, reset_head)
         win_thread = threading.Thread(target=reset_head)
         ack_thread = threading.Thread(target=self.run)
         ack_thread.start()
         time.sleep(0.7)
         win_thread.start()
-        #signal.setitimer(signal.ITIMER_REAL, 0.7)
 
-        while current_ack < max_pkt_no:
+        while curr_ack < num_of_pckts:
             with lock:
-                while window_head - current_ack < self.window:
-                    window_head += 1
-                    if window_head > max_pkt_no:
+                while win_start - curr_ack < self.window:
+                    win_start += 1
+                    if win_start > num_of_pckts:
                         break
-                    curr_pkt = json.loads(packet_list[window_head].decode('utf-8'))
-                    if not curr_pkt['status']:
+                    curr_pkt = json.loads(packets[win_start].decode('utf-8'))
+                    if not curr_pkt['sent']:
                         print("Sending Packet to Server: ", curr_pkt['number'])
-                        self.send_socket.sendto(packet_list[window_head], self.server_address)
+                        self.send_socket.sendto(packets[win_start], self.server_address)
 
         ack_thread.join()
-
-        endtime = time.time()
-        duration = abs(starttime - endtime)
-        filesize = os.path.getsize(filename)
-        throughput = filesize / duration
-        print("duration: ", duration)
-        print("filesize: ", filesize)
-        print("throughput: ", throughput)
         return
-
