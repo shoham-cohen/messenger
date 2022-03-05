@@ -77,3 +77,4 @@ class reciever:
         for pkt in final_data_list:
             if pkt["pkt_type"] == "data_pkt":
                 fd.write(bytes(pkt['data']))
+        return
