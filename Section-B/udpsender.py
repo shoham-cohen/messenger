@@ -1,6 +1,5 @@
 import socket
 import threading
-#import signal
 from data_packet import *
 import os
 import time
@@ -115,4 +114,5 @@ class sender:
         print("duration: ", duration)
         print("filesize: ", filesize)
         print("throughput: ", throughput)
+        return
 
