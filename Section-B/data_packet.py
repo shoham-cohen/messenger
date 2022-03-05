@@ -2,45 +2,44 @@ import json
 import hashlib
 
 
-def checksum(data, pkt_type, number, status):
-    hash_str = str(data) + ":" + pkt_type + ":" + str(number) + ":" + str(status)
-    return hashlib.md5(hash_str.encode()).hexdigest()
+# calculate the checksum using md5 func
+def calculate_checksum(data, type, pkt_number, sent):
+    temp = str(data) + ":" + type + ":" + str(pkt_number) + ":" + str(sent)
+    return hashlib.md5(temp.encode()).hexdigest()
 
 
-def make_pktlist(content, filename):
-    packet_list = []
-    pno = 0
-    while len(content) != 0:
-        data = content[:64]
-        pno += 1
-        csum = checksum(data, "data_pkt", pno - 1, False)
-        data = jsonify(data, "data_pkt", pno - 1, False, csum)
-        packet_list.append(data)
-        content = content[64:]
+def make_pktlist(file_data, fname):
+    packets = []
+    packet_num = 0
+    while len(file_data) != 0:
+        data = file_data[:64]
+        packet_num += 1
+        csum = calculate_checksum(data, "data_pkt", packet_num - 1, False)
+        data = make_json(data, "data_pkt", packet_num - 1, False, csum)
+        packets.append(data)
+        file_data = file_data[64:]
 
-    pno += 1
-    file = filename
-    data = bytes(file, 'utf-8')
-    csum = checksum(data, "file_pkt", pno - 1, False)
-    data = jsonify(data, "file_pkt", pno - 1, False, csum)
-    packet_list.append(data)
+    packet_num += 1
+    data = bytes(fname, 'utf-8')
+    csum = calculate_checksum(data, "file_pkt", packet_num - 1, False)
+    data = make_json(data, "file_pkt", packet_num - 1, False, csum)
+    packets.append(data)
 
-    pno += 1
-    bye = "Bye"
-    data = bytes(bye, 'utf-8')
-    csum = checksum(data, "close_pkt", pno - 1, False)
-    data = jsonify(data, "close_pkt", pno - 1, False, csum)
-    packet_list.append(data)
-    return packet_list
+    packet_num += 1
+    data = bytes("Bye", 'utf-8')
+    csum = calculate_checksum(data, "close_pkt", packet_num - 1, False)
+    data = make_json(data, "close_pkt", packet_num - 1, False, csum)
+    packets.append(data)
+    return packets
 
 
-def checkSumVerification(pkt):
-    currpkt = json.loads(pkt.decode('utf-8'))
-    d = bytes(currpkt["data"])
-    t = currpkt["pkt_type"]
-    n = currpkt["number"]
-    s = currpkt["status"]
-    if checksum(d, t, n, s) == currpkt['checksum']:
+def check_checksum(pkt):
+    curr = json.loads(pkt.decode('utf-8'))
+    data = bytes(curr["data"])
+    type = curr["type"]
+    number = curr["number"]
+    sent = curr["sent"]
+    if calculate_checksum(data, type, number, sent) == curr['checksum']:
         return True
     else:
         return False
@@ -48,18 +47,18 @@ def checkSumVerification(pkt):
 
 def check_ack(ack):
     ack_data = bytes(ack['data'])
-    if checksum(ack_data, ack['pkt_type'], ack['number'], ack['status']) == ack['checksum']:
+    if calculate_checksum(ack_data, ack['type'], ack['number'], ack['sent']) == ack['checksum']:
         return True
     else:
         return False
 
 
-def jsonify(data, pkt_type, number, status, csum):
+def make_json(data, pkt_type, number, status, csum):
     pkt_dict = {
         "data": list(data),
-        "pkt_type": pkt_type,
+        "type": pkt_type,
         "number": number,
-        "status": status,
+        "sent": status,
         "checksum": csum
 
     }
@@ -74,6 +73,6 @@ def getdict(pkt):
 def createAck(data_num):
     data = "Ack Sent"
     data = bytes(data, 'utf-8')
-    csum = checksum(data, "ack", data_num, True)
-    ackpkt = jsonify(data, "ack", data_num, True, csum)
+    csum = calculate_checksum(data, "ack", data_num, True)
+    ackpkt = make_json(data, "ack", data_num, True, csum)
     return ackpkt
