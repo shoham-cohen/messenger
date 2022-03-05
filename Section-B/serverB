@@ -92,7 +92,8 @@ def Show_Files(client):
 
 
 def Download(client, address, m):
-    run_server(address[0], int(udpPorts[clients.index(client)]), int(4), int(8888))
+    fname = m[12:21]
+    run_server(address[0], int(udpPorts[clients.index(client)]), int(4), int(8888), fname)
 
 
 print("Server is running...")
