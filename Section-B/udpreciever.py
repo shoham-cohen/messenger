@@ -36,6 +36,7 @@ class reciever:
             if checkSumVerification(data):
                 ackpkt = createAck(temp['number'])
                 self.ack_socket.sendto(ackpkt, client_address)
+                print(temp['number'])
                 if temp['number'] == expected_pkt:
                     expected_pkt += 1
                     curr_pkt = temp["number"]
