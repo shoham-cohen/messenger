@@ -5,6 +5,7 @@ from tkinter import *
 import tkinter.scrolledtext
 from tkinter import simpledialog
 
+from test import run_client
 from udpreciever import reciever
 
 HOST = input("enter server ip: ")
@@ -168,11 +169,7 @@ class Client:
 
     def Download(self, FileName):
         self.sock.send(("Downloading "+FileName+"\n").encode('utf-8'))
-        print(self.UDP_PORT)
-        time.sleep(1)
-        print(self.UDP_PORT)
-        recv = reciever(SELF_IP, self.UDP_PORT)
-        recv.receive()
+        run_client(SELF_IP, self.UDP_PORT)
         self.sock.send("file received".encode('utf-8'))
 
 
