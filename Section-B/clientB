@@ -1,12 +1,16 @@
 import socket
 import threading
+import time
 from tkinter import *
 import tkinter.scrolledtext
 from tkinter import simpledialog
 
+from udpreciever import reciever
+
 HOST = input("enter server ip: ")
 PORT = input("enter port: ")
-
+SELF_IP = input("enter your ipv4 address: ")
+UDP_PORT = -1
 
 class Client:
 
@@ -77,7 +81,7 @@ class Client:
 
         def Pop_Button3():
             filewin = Toplevel(self.win)
-            button = Button(filewin, text="Download File3.txt", command=self.Download("File3.txt"))
+            button = Button(filewin, text="Download File3.txt", command=self.Download("file3.png"))
             button.pack()
 
         def Pop_Button4():
@@ -101,6 +105,10 @@ class Client:
         menubar.add_cascade(label="File", menu=filemenu)
 
         self.win.config(menu=menubar)
+
+        self.disconnect_button = tkinter.Button(self.win, text="Disconnect", command=self.stop)
+        self.disconnect_button.config(font=("Ariel", 12))
+        self.disconnect_button.pack(padx=0, pady=5)
 
         self.gui_done = True
 
@@ -139,7 +147,11 @@ class Client:
         while self.running:
             try:
                 message = self.sock.recv(1024).decode('utf-8')
-                if self.gui_done:
+                if "PORT:" in message:
+                    x = message.split(" ")
+                    self.UDP_PORT = int(x[1])
+                    print(self.UDP_PORT)
+                elif self.gui_done:
                     self.text_area.config(state='normal')
                     self.text_area.insert('end', message)
                     self.text_area.yview('end')
@@ -156,6 +168,12 @@ class Client:
 
     def Download(self, FileName):
         self.sock.send(("Downloading "+FileName+"\n").encode('utf-8'))
+        print(self.UDP_PORT)
+        time.sleep(1)
+        print(self.UDP_PORT)
+        recv = reciever(SELF_IP, self.UDP_PORT)
+        recv.receive()
+        self.sock.send("file received".encode('utf-8'))
 
 
 client = Client(HOST, int(PORT))
