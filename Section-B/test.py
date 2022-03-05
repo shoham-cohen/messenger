@@ -3,12 +3,10 @@ from udpsender import *
 
 
 class run_server:
-    def __init__(self, SERVER_IP, SERVER_PORT, window, client_port):
-        print(SERVER_IP, SERVER_PORT, window, client_port)
-        print("server Mode: ON")
+    def __init__(self, SERVER_IP, SERVER_PORT, window, client_port, filename):
         c = sender(SERVER_IP, int(SERVER_PORT), int(window), int(client_port))
-        filename = input("Enter File Name:")
         c.send(filename)
+        return
 
 
 class run_client:
