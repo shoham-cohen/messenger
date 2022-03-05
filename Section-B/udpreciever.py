@@ -9,7 +9,7 @@ class reciever:
     def __init__(self, server_IP, server_port):
         self.server_IP = server_IP
         self.server_port = server_port
-        self.ack_port = server_port + 5
+        self.ack_port = server_port + 16
 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -33,7 +33,7 @@ class reciever:
             data, from_address = self.server_socket.recvfrom(1024)
             client_address = (from_address[0], from_address[1] + 5)
             temp = getdict(data)
-            if checkSumVerification(data):
+            if check_checksum(data):
                 ackpkt = createAck(temp['number'])
                 self.ack_socket.sendto(ackpkt, client_address)
                 print(temp['number'])
@@ -55,7 +55,7 @@ class reciever:
             for pkt in pkt_list:
                 temp = getdict(pkt)
                 if temp['number'] == curr_pkt:
-                    if temp['pkt_type'] == 'close_pkt':
+                    if temp['type'] == 'close_pkt':
                         flag = True
                         break
 
@@ -69,12 +69,12 @@ class reciever:
         final_data_list = sorted(pkt_list, key=lambda k: k['number'])
 
         for pkt in final_data_list:
-            if pkt["pkt_type"] == "file_pkt":
+            if pkt["type"] == "file_pkt":
                 filename = "output_" + bytes(pkt['data']).decode('utf-8')
                 break
 
         fd = open(filename, "wb")
         for pkt in final_data_list:
-            if pkt["pkt_type"] == "data_pkt":
+            if pkt["type"] == "data_pkt":
                 fd.write(bytes(pkt['data']))
         return
