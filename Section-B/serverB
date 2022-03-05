@@ -5,7 +5,7 @@ import time
 from test import *
 from udpsender import sender
 
-HOST = '127.0.0.1'
+HOST = input("server ip: ")
 PORT = 55000
 # creating the server socket and binds it
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,7 +28,7 @@ def broadcatst(message, To):
             client.send(message)
 
 
-# listening to the client and handling it's requests
+# listening to the client and handling its requests
 def handle(client):
     while True:
         try:
@@ -48,7 +48,8 @@ def handle(client):
             elif "Downloading" in m:
                 index = clients.index(client)
                 address = addresses[index]
-                Download(client, address, m)
+                down_thread = threading.Thread(target=Download, args=(client, address, m))
+                down_thread.start()
             else:
                 print(f"{m}", end=" ")
                 broadcatst(message, nicknames)
@@ -93,7 +94,7 @@ def Show_Files(client):
 
 def Download(client, address, m):
     fname = m[12:21]
-    run_server(address[0], int(udpPorts[clients.index(client)]), int(4), int(8888), fname)
+    run_server(address[0], int(udpPorts[clients.index(client)]), int(16-len(clients)), int(8888), fname)
 
 
 print("Server is running...")
