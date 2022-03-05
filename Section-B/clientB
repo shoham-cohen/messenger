@@ -9,7 +9,7 @@ from test import run_client
 from udpreciever import reciever
 
 HOST = input("enter server ip: ")
-PORT = input("enter port: ")
+PORT = 55000
 SELF_IP = input("enter your ipv4 address: ")
 UDP_PORT = -1
 
@@ -170,7 +170,7 @@ class Client:
     def Download(self, FileName):
         self.sock.send(("Downloading "+FileName+"\n").encode('utf-8'))
         run_client(SELF_IP, self.UDP_PORT)
-        self.sock.send("file received".encode('utf-8'))
+        self.sock.send("file received\n".encode('utf-8'))
 
 
 client = Client(HOST, int(PORT))
