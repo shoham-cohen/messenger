@@ -2,11 +2,11 @@ import socket
 import threading
 import time
 
+from test import *
 from udpsender import sender
 
 HOST = '127.0.0.1'
 PORT = 55000
-
 # creating the server socket and binds it
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
@@ -92,10 +92,9 @@ def Show_Files(client):
 
 
 def Download(client, address, m):
-    sen = sender(address[0], int(address[1]), int(16 - len(clients)), int(56000))
-    fname = m[11:len(m)-1]
-    sen.send(fname.lower())
+    run_server(address[0], int(udpPorts[clients.index(client)]), int(4), int(8888))
 
 
 print("Server is running...")
 receive()
+
