@@ -72,36 +72,36 @@ class Client:
 
         def Pop_Button1():
             filewin = Toplevel(self.win)
-            button = Button(filewin, text="Download File1.txt", command=self.Download("File1.txt"))
+            button = Button(filewin, text="Download file1.txt", command=self.Download("file1.txt"))
             button.pack()
 
         def Pop_Button2():
             filewin = Toplevel(self.win)
-            button = Button(filewin, text="Download File2.txt", command=self.Download("File2.txt"))
+            button = Button(filewin, text="Download file2.txt", command=self.Download("file2.txt"))
             button.pack()
 
         def Pop_Button3():
             filewin = Toplevel(self.win)
-            button = Button(filewin, text="Download File3.txt", command=self.Download("file3.png"))
+            button = Button(filewin, text="Download file3.png", command=self.Download("file3.png"))
             button.pack()
 
         def Pop_Button4():
             filewin = Toplevel(self.win)
-            button = Button(filewin, text="Download File4.txt", command=self.Download("File4.txt"))
+            button = Button(filewin, text="Download file4.pdf", command=self.Download("file4.pdf"))
             button.pack()
 
         def Pop_Button5():
             filewin = Toplevel(self.win)
-            button = Button(filewin, text="Download File5.txt", command=self.Download("File5.txt"))
+            button = Button(filewin, text="Download file5.gif", command=self.Download("file5.gif"))
             button.pack()
 
         menubar = Menu(self.win)
         filemenu = Menu(menubar, tearoff=0)
-        filemenu.add_command(label="File1.txt", command=Pop_Button1)
-        filemenu.add_command(label="File2.txt", command=Pop_Button2)
-        filemenu.add_command(label="File3.txt", command=Pop_Button3)
-        filemenu.add_command(label="File4.txt", command=Pop_Button4)
-        filemenu.add_command(label="File5.txt", command=Pop_Button5)
+        filemenu.add_command(label="file1.txt", command=Pop_Button1)
+        filemenu.add_command(label="file2.txt", command=Pop_Button2)
+        filemenu.add_command(label="file3.png", command=Pop_Button3)
+        filemenu.add_command(label="file4.pdf", command=Pop_Button4)
+        filemenu.add_command(label="file5.gif", command=Pop_Button5)
 
         menubar.add_cascade(label="File", menu=filemenu)
 
