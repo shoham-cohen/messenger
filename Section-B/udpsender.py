@@ -1,10 +1,9 @@
 import socket
 import threading
-import signal
+#import signal
 from data_packet import *
 import os
 import time
-import temp
 
 global window_head, current_ack, expected_ack, buffer_ack, lock, max_pkt_no, packet_list
 window_head = -1
@@ -63,7 +62,7 @@ class sender:
                         temppkt['status'] = True
                         packet_list[ack_number] = jsonify(temppkt['data'], temppkt['pkt_type'], temppkt['number'],
                                                           temppkt['status'], temppkt['checksum'])
-                        signal.setitimer(signal.ITIMER_REAL, 0.7)
+                        #signal.setitimer(signal.ITIMER_REAL, 0.7)
                         print(buffer_ack)
                         while buffer_ack and buffer_ack[0] == expected_ack:
                             current_ack = expected_ack
@@ -80,17 +79,21 @@ class sender:
         lock = threading.Lock()
         buffer_ack = []
 
-        def reset_head(self, signum):
-            global window_head, current_ack, expected_ack, buffer_ack, lock
-            if current_ack < max_pkt_no:
-                window_head = current_ack
-            signal.setitimer(signal.ITIMER_REAL, 0.7)
+        def reset_head():
+            while True:
+                global window_head, current_ack, expected_ack, buffer_ack, lock
+                if current_ack < max_pkt_no:
+                    window_head = current_ack
+                time.sleep(0.7)
 
         starttime = time.time()
-        signal.signal(signal.SIGALRM, reset_head)
+        #signal.signal(signal.SIGALRM, reset_head)
+        win_thread = threading.Thread(target=reset_head)
         ack_thread = threading.Thread(target=self.run)
         ack_thread.start()
-        signal.setitimer(signal.ITIMER_REAL, 0.7)
+        time.sleep(0.7)
+        win_thread.start()
+        #signal.setitimer(signal.ITIMER_REAL, 0.7)
 
         while current_ack < max_pkt_no:
             with lock:
