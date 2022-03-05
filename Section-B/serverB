@@ -1,5 +1,8 @@
 import socket
 import threading
+import time
+
+from udpsender import sender
 
 HOST = '127.0.0.1'
 PORT = 55000
@@ -12,7 +15,9 @@ server.listen()
 
 clients = []
 nicknames = []
-files = ["file1.txt", "file2.txt"]
+addresses = []
+udpPorts = []
+files = ["file1.txt", "file2.txt", "file3.png", "file4.pdf", "file5.gif"]
 
 
 # send the message to the wanted clients
@@ -40,14 +45,20 @@ def handle(client):
                 client.send(f"Online: {str(nicknames)}\n".encode('utf-8'))
             elif "SHOW_FILES" in m:
                 Show_Files(client)
-            elif "download" in m:
-                Download(client, m)
+            elif "Downloading" in m:
+                index = clients.index(client)
+                address = addresses[index]
+                Download(client, address, m)
             else:
                 print(f"{m}", end=" ")
                 broadcatst(message, nicknames)
         except:
             index = clients.index(client)
             clients.remove(client)
+            address = addresses[index]
+            addresses.remove(address)
+            port = udpPorts[index]
+            udpPorts.remove(port)
             client.close()
             nickname = nicknames[index]
             broadcatst(f"{nickname} is now offline\n".encode('utf-8'), nicknames)
@@ -66,21 +77,24 @@ def receive():
 
         nicknames.append(nickname)
         clients.append(client)
-
+        addresses.append(address)
         print(f"Nickname of the client is {nickname}")
+        time.sleep(2)
         broadcatst(f"{nickname} is now online!\n".encode('utf-8'), nicknames)
-
+        client.send(f"PORT: {55000+clients.index(client)+1}".encode('utf-8'))
+        udpPorts.append(int(55000+clients.index(client)+1))
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
-        # client.send("you are connected to the server\n".encode('utf-8'))
 
 
 def Show_Files(client):
     client.send(str(str(files)+"\n").encode('utf-8'))
 
 
-def Download(client, m):
-    pass
+def Download(client, address, m):
+    sen = sender(address[0], int(address[1]), int(16 - len(clients)), int(56000))
+    fname = m[11:len(m)-1]
+    sen.send(fname.lower())
 
 
 print("Server is running...")
