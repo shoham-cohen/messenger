@@ -1,4 +1,4 @@
-from data_packet import *
+from packet import *
 import socket
 
 global expected_pkt, curr_pkt, pkt_buffer, pkt_list
