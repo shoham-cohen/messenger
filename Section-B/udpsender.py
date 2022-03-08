@@ -1,6 +1,6 @@
 import socket
 import threading
-from data_packet import *
+from packet import *
 import time
 
 global win_start, curr_ack, exp_ack, acks_buff, lock, num_of_pckts, packets
